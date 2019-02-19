@@ -1,0 +1,18 @@
+{
+  "name": "weather-spark",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon --exec \"node -r dotenv/config\" src/index.js",
+    "launch": "node -r dotenv/config src/index.js"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "mongoose": "^5.4.13"
+  },
+  "devDependencies": {
+    "dotenv": "^6.2.0",
+    "nodemon": "^1.18.10"
+  }
+}
