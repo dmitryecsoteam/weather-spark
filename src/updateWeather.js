@@ -3,6 +3,8 @@ const Destination = require('./models/Destination');
 const Travel = require('./models/Travel');
 const mongo = require('./server/mongo');
 
+const withTimestamp = process.argv.indexOf('--withTimestamp') + 1;
+
 const updateWeather = async function () {
 
     try {
@@ -121,6 +123,7 @@ const updateWeather = async function () {
                             }
 
                             // All travels updated, return from function
+                            console.log('Updated weather data from DB, destination: ' + destination._id);
                             return;
 
                         } else {
@@ -137,14 +140,28 @@ const updateWeather = async function () {
                             for ({ date } of travels) {
                                 const day = new Date(date);
 
+                                let startApiTimestamp, endApiTimestamp, startParseTimestamp, endParseTimestamp, startUpdateTimestamp, endUpdateTimestamp;
+                                startApiTimestamp = + new Date(); 
+
                                 const response = await axios.get(generaterUrl(destination.weatherSparkId, day.getMonth() + 1, day.getDate(), destination.weatherSparkName || destination.nameEn, destination.countryEn));
-                                const found = response.data.match(/typically ranges from (-*\d+)°F to (-*\d+)°F/);
+                                endApiTimestamp = + new Date(); 
+                                const found = response.data.match(/typically ranges from (-*\d+)°F to (-*\d+)°F/); 
+                                endParseTimestamp = + new Date();
 
                                 const weatherTempStatMin = fToC(found[1]);
                                 const weatherTempStatMax = fToC(found[2]);
 
+                                startUpdateTimestamp = + new Date();
                                 await Travel.updateOne({ destination: destination._id, origin: updateOrigin._id, date }, { weatherTempStatMin, weatherTempStatMax });
+                                endUpdateTimestamp = + new Date();
+
+                                if (withTimestamp) {
+                                    console.log('Getting data from API: ', endApiTimestamp - startApiTimestamp, 'ms');
+                                    console.log('Parsing data: ', endParseTimestamp - endApiTimestamp, 'ms');
+                                    console.log('Saving data to DB: ', endUpdateTimestamp - startUpdateTimestamp, 'ms');
+                                }
                             }
+                            console.log('Updated weather data from API, destination: ' + destination._id + ', origin: ' + updateOrigin._id);
                             await updateWeatherByDestinationId(destination);
                         }
                     }
