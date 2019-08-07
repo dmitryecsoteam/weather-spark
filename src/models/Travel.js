@@ -34,7 +34,7 @@ TravelSchema.statics.getWeatherCountByOrigin = function getWeatherCountByOrigin(
 }
 
 TravelSchema.statics.findTravels = function findTravels(origin, destination) {
-    return this.find(origin, destination).select({ date: 1, weatherTempStatMax: 1, weatherTempStatMin: 1 })
+    return this.find({ origin, destination }).select({ date: 1, weatherTempStatMax: 1, weatherTempStatMin: 1 })
 }
 
 TravelSchema.statics.findMissingDates = function findMissingDates(origin, destination) {
